@@ -1,0 +1,201 @@
+#!/bin/bash
+
+# Slackware build script for neo "intel compute-runtime"
+# https://github.com/intel/compute-runtime
+
+# 2024 Anagnostakis Ioannis GR
+
+
+cd $(dirname $0) ; CWD=$(pwd)
+
+PRGNAM=neo
+VERSION=${VERSION:-24.17.29377.6}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_rtz}
+PKGTYPE=${PKGTYPE:-txz}
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
+# Unless $ARCH is already set, use uname -m for all other archs:
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
+TMP=${TMP:-/tmp/rtz}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+if [ "$ARCH" = "i586" ]; then
+  SLKCFLAGS="-O2 -march=i586 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+elif [ "$ARCH" = "aarch64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+fi
+
+
+rm -fr $TMP/$PRGNAM-$VERSION
+wait
+rm -rf $PKG
+wait 
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+mkdir $PRGNAM-$VERSION
+cd $PRGNAM-$VERSION
+
+igcdirs=(
+    intel-igc-core
+    intel-igc-opencl
+    intel-level-zero-gpu-dbgsym
+    intel-level-zero-gpu
+    intel-opencl-icd-dbgsym
+    intel-opencl-icd
+    libigdgmm12
+)
+
+for dir in "${igcdirs[@]}"; do
+    mkdir -p "$dir"
+done
+
+# Download files to their respective directories
+wget -P libigdgmm12 https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/libigdgmm12_22.3.19_amd64.deb
+wget -P intel-opencl-icd https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/intel-opencl-icd_24.17.29377.6_amd64.deb
+wget -P intel-opencl-icd-dbgsym https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/intel-opencl-icd-dbgsym_24.17.29377.6_amd64.ddeb
+wget -P intel-level-zero-gpu https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/intel-level-zero-gpu_1.3.29377.6_amd64.deb
+wget -P intel-level-zero-gpu-dbgsym https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/intel-level-zero-gpu-dbgsym_1.3.29377.6_amd64.ddeb
+wget -P intel-igc-opencl https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.16695.4/intel-igc-opencl_1.0.16695.4_amd64.deb
+wget -P intel-igc-core https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.16695.4/intel-igc-core_1.0.16695.4_amd64.deb
+
+# Function to extract .deb and .ddeb files
+extract_deb_files() {
+    local dir_path=$1
+    cd "$dir_path" || return
+    for deb_file in *.deb *.ddeb; do
+        if [ -f "$deb_file" ]; then
+            echo "Extracting $deb_file in $dir_path"
+            ar x "$deb_file"
+        fi
+    done
+}
+
+# Extract .deb and .ddeb files
+for dir in "${igcdirs[@]}"; do
+    dir_path="$TMP/$PRGNAM-$VERSION/$dir"
+    echo "Processing directory: $dir_path"
+    if [ -d "$dir_path" ]; then
+        extract_deb_files "$dir_path"
+    else
+        echo "Directory $dir_path does not exist"
+    fi
+done
+
+# Extract data.tar.* files
+for dir in "${igcdirs[@]}"; do
+    dir_path="$TMP/$PRGNAM-$VERSION/$dir"
+    if [ -d "$dir_path" ]; then
+        cd "$dir_path" || continue
+        for data_file in data.tar.*; do
+            if [ -f "$data_file" ]; then
+                case "$data_file" in
+                    *.tar.gz) 
+                        echo "Extracting $data_file (gzip) in $dir_path"
+                        tar -xzf "$data_file"
+                        ;;
+                    *.tar.bz2)
+                        echo "Extracting $data_file (bzip2) in $dir_path"
+                        tar -xjf "$data_file"
+                        ;;
+                    *.tar.xz)
+                        echo "Extracting $data_file (xz) in $dir_path"
+                        tar -xJf "$data_file"
+                        ;;
+                    *.tar.zst)
+                        echo "Extracting $data_file (zstd) in $dir_path"
+                        tar --use-compress-program=zstd -xf  "$data_file" || exit
+                        ;;
+                    *)
+                        echo "Unknown compression type for $data_file"
+                        ;;
+                esac
+            else
+                echo "No data.tar.* files found in $dir_path"
+            fi
+        done
+    else
+        echo "Directory $dir_path does not exist"
+    fi
+done
+
+
+# Clean up
+for dir in "${igcdirs[@]}"; do
+    dir_path="$TMP/$PRGNAM-$VERSION/$dir"
+    if [ -d "$dir_path" ]; then
+        rm "$dir_path"/{*.tar.*,*.deb,*.ddeb,debian-binary} 2>/dev/null
+    else
+        echo "Directory $dir_path does not exist"
+    fi
+done
+
+cd $TMP/$PRGNAM-$VERSION || exit 2
+
+set -e 
+
+chown -R root:root .
+
+mkdir -p "$PKG"/usr/lib64/{intel-igc-core,intel-igc-opencl,intel-level-zero-gpu,intel-level-zero-gpu-dbgsym,intel-opencl-icd,intel-opencl-icd-dbgsym} || exit 3
+mkdir -p $PKG/usr/include || exit 3
+mkdir -p $PKG/usr/bin || exit 3
+mkdir -p $PKG/usr/lib || exit 3
+mkdir -p $PKG/etc || exit 3
+
+# Moving files to appropriate directories
+cp -R intel-igc-core/usr/local/lib/* $PKG/usr/lib64/intel-igc-core/ || exit 66
+cp -R intel-igc-opencl/usr/local/lib/* $PKG/usr/lib64/intel-igc-opencl/ || exit 67
+cp -R intel-level-zero-gpu/usr/lib/* $PKG/usr/lib64/ || exit 68
+cp -R intel-level-zero-gpu-dbgsym/usr/lib/debug $PKG/usr/lib/ || exit 69
+cp -R intel-opencl-icd/usr/lib/* $PKG/usr/lib64/ || exit 70
+cp -R intel-opencl-icd/usr/include/* $PKG/usr/include || exit 71
+cp -R intel-opencl-icd/usr/bin/* $PKG/usr/bin || exit 72
+cp -R intel-opencl-icd-dbgsym/usr/lib/* $PKG/usr/lib/ || exit 73
+cp -R libigdgmm12/usr/lib/* $PKG/usr/lib64/ || exit 74
+cp -R intel-opencl-icd/etc/* $PKG/etc/  || exit 75
+
+
+> "$PKG"/etc/OpenCL/vendors/intel.icd
+sleep 1
+echo "/usr/lib64/x86_64-linux-gnu/intel-opencl/libigdrcl.so" > "$PKG"/etc/OpenCL/vendors/intel.icd
+# Don't ship .la files:
+rm -f $PKG/usr/lib${LIBDIRSUFFIX}/*.la
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+
+# Copy the slack-desc (and a custom doinst.sh if necessary) into ./install
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+
+cd $PKG
+/sbin/makepkg -l n -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
+

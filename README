@@ -1,0 +1,16 @@
+This neo.SlackBuild is not exaclty in the Slackway way for building. But its the only KISS and stable way to follow releases of neo, for me... 
+
+NOTE:
+Neo packages for ubuntu were built with custom flags NEO_ENABLE_i915_PRELIM_DETECTION=1
+CHANGED custom flag NEO_ENABLE_XE_DRM_DETECTION was not set
+binaries (deb,ddeb)posted with this release are not compatible with Xe DRM. 
+
+CONFIGURATION FLAGS:
+READ https://github.com/intel/intel-graphics-compiler/blob/master/documentation/configuration_flags.md
+
+How OpenCL on Linux Works:
+https://github.com/bashbaug/OpenCLPapers/blob/markdown/OpenCLOnLinux.md
+
+REQUIRES:
+vc-intrinsics ponce 
+
