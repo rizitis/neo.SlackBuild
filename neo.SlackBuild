@@ -9,7 +9,7 @@
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=neo
-VERSION=${VERSION:-24.17.29377.6}
+VERSION=${VERSION:-24.22.29735.20}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_rtz}
 PKGTYPE=${PKGTYPE:-txz}
@@ -75,13 +75,13 @@ for dir in "${igcdirs[@]}"; do
 done
 
 # Download files to their respective directories
-wget -P libigdgmm12 https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/libigdgmm12_22.3.19_amd64.deb
-wget -P intel-opencl-icd https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/intel-opencl-icd_24.17.29377.6_amd64.deb
-wget -P intel-opencl-icd-dbgsym https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/intel-opencl-icd-dbgsym_24.17.29377.6_amd64.ddeb
-wget -P intel-level-zero-gpu https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/intel-level-zero-gpu_1.3.29377.6_amd64.deb
-wget -P intel-level-zero-gpu-dbgsym https://github.com/intel/compute-runtime/releases/download/24.17.29377.6/intel-level-zero-gpu-dbgsym_1.3.29377.6_amd64.ddeb
-wget -P intel-igc-opencl https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.16695.4/intel-igc-opencl_1.0.16695.4_amd64.deb
-wget -P intel-igc-core https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.16695.4/intel-igc-core_1.0.16695.4_amd64.deb
+wget -P libigdgmm12 https://github.com/intel/compute-runtime/releases/download/24.22.29735.20/libigdgmm12_22.3.19_amd64.deb
+wget -P intel-opencl-icd  https://github.com/intel/compute-runtime/releases/download/24.22.29735.20/intel-opencl-icd_24.22.29735.20_amd64.deb
+wget -P intel-opencl-icd-dbgsym https://github.com/intel/compute-runtime/releases/download/24.22.29735.20/intel-opencl-icd-dbgsym_24.22.29735.20_amd64.ddeb
+wget -P intel-level-zero-gpu https://github.com/intel/compute-runtime/releases/download/24.22.29735.20/intel-level-zero-gpu_1.3.29735.20_amd64.deb
+wget -P intel-level-zero-gpu-dbgsym https://github.com/intel/compute-runtime/releases/download/24.22.29735.20/intel-level-zero-gpu-dbgsym_1.3.29735.20_amd64.ddeb
+wget -P intel-igc-opencl https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.16900.23/intel-igc-opencl_1.0.16900.23_amd64.deb
+wget -P intel-igc-core https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.16900.23/intel-igc-core_1.0.16900.23_amd64.deb
 
 # Function to extract .deb and .ddeb files
 extract_deb_files() {

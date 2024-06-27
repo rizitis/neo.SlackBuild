@@ -12,6 +12,8 @@ The project evolved beyond a single API and NEO no longer implies a specific API
 # README
 1. Please read README
 2. This work is very unstable and untested, use it at your own risk or <br>
-even beter fork the idea and make it better.  
+even beter fork the idea and make it better.    
+3. Please read doinst
+4. If you want to maintain this package follow versions from [here](https://github.com/intel/compute-runtime/releases)
 
 
