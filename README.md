@@ -1,4 +1,5 @@
 # neo.SlackBuild
+(Slackware Current)
 
 Intel(R) Graphics Compute Runtime for oneAPI Level Zero and OpenCL(TM) Driver for Slackware-current
 
